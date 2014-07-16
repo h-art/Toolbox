@@ -14,11 +14,15 @@ use Facebook\FacebookCanvasLoginHelper;
 use Facebook\FacebookRequestException;
 use Facebook\FacebookAuthorizationException;
 
+
+use Facebook\FacebookRedirectLoginHelper;
 /**
- * 
+ * Facebook\FacebookRedirectLoginHelper
+ * OR :
  * OPTIONAL, for laravel session handling
+ * use Hart\Wrappers\Facebook\LaravelFacebookRedirectLoginHelper ;
  */
-use Hart\Wrappers\Facebook\LaravelFacebookRedirectLoginHelper ;
+
 
 
 
