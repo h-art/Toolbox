@@ -9,47 +9,33 @@
  *  $result = $x->post($params);
  */
 
-namespace Hart\Utility;
+namespace Hart\Utility\Webservice;
 
-class CurlCaller
+class CurlWebservice extends BaseWebservice
 {
 	const METHOD_GET = 'GET';
 	const METHOD_POST = 'POST';
 
 	protected 	$_url = null,
 				$_headers = null,
-				$_method = 'GET',
-				$_lastResult = null,
-				$_lastHttpResponse = null;
+				$_method = 'GET';
 
 
 	public function __construct($url)
 	{
 		$this->_url = $url;
-
 	}
-
-	public function getLastHttpResponse()
-	{
-		return $this->_lastHttpResponse;
-	}
-
-	public function getLastResult()
-	{
-		return $this->_lastResult;
-	}
-
 	public function get($params = array())
 	{
 		$this->_method = self::METHOD_GET;
-		return $this->genericCurl($params);
+		return $this->query($params);
 
 	}
 
 	public function post($params = array())
 	{
 		$this->_method = self::METHOD_POST;
-		return $this->genericCurl($params);
+		return $this->query($params);
 	}
 
 	public function setHeaders($params)
@@ -58,7 +44,7 @@ class CurlCaller
 
 	}
 
-	protected function genericCurl($params = array())
+	protected function query($params = array())
 	{
 
 		$querystring = http_build_query($params);
@@ -88,17 +74,17 @@ class CurlCaller
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 
-		$this->_lastResult = curl_exec($ch);
+			$this->setLastResult(curl_exec($ch));
+			$this->setLastHttpResponse(curl_getinfo($ch, CURLINFO_HTTP_CODE));
 
-		$this->_lastHttpResponse = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		curl_close($ch);
-		if(200 === $this->_lastHttpResponse)
+		if(200 === $this->getLastHttpResponse())
 		{
-			return $this->_lastResult;
+			return $this->getLastResult();
 		}
 		else
 		{			
-			throw new \Exception(" {$this->_lastHttpResponse} error occurred.Message: {$this->_lastResult}", 1);
+			throw new \Exception(" {$this->getLastHttpResponse()} error occurred.Message: {$this->getLastResult()}", 1);
 		}
 
 	}
