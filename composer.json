@@ -1,0 +1,35 @@
+{
+	"name": "hart/toolbox",
+	"description": "A beautiful toolbox.",
+	"keywords": ["hart", "toolbox"],
+	"license": "MIT",
+	"require": {
+		"php": ">=5.4"			
+	},
+	"require-dev": {
+		"codeception/codeception": "2.0.2",
+		"codeception/specify": "0.3.6",
+		"codeception/verify": "0.2.7",
+		"mockery/mockery": "0.9.1"
+	},
+	"autoload": {
+		"classmap": [
+			
+		],
+		"psr-0": {
+			"Hart\\": "src/Hart"			
+		}
+	},
+	"scripts": {
+		"post-install-cmd": [
+			
+		],
+		"post-update-cmd": [
+			"php vendor/bin/codecept run"
+		]
+	},
+	"config": {
+		"preferred-install": "dist"
+	},
+	"minimum-stability": "stable"
+}
