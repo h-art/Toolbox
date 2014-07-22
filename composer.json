@@ -17,7 +17,8 @@
 			
 		],
 		"psr-4": {
-			"Hart\\": "src/Hart"			
+			"Hart\\": "src/Hart",
+			"Mocks\\": "tests/Mocks"
 		}
 	},
 	"scripts": {

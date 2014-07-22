@@ -11,81 +11,64 @@
 
 namespace Hart\Utility\Webservice;
 
+use Hart\Utility\Requester\BaseRequester;
+use Hart\Utility\Requester\CurlRequester;
+
 class CurlWebservice extends BaseWebservice
 {
-	const METHOD_GET = 'GET';
-	const METHOD_POST = 'POST';
-
-	protected 	$_url = null,
-				$_headers = null,
-				$_method = 'GET';
-
-
-	public function __construct($url)
+	
+	public function __construct(BaseRequester $requester)
 	{
-		$this->_url = $url;
+		$this->setRequester($requester);
 	}
+
 	public function get($params = array())
 	{
-		$this->_method = self::METHOD_GET;
+		$this->getRequester()->setMethod(CurlRequester::METHOD_GET);
+		
 		return $this->query($params);
-
 	}
 
 	public function post($params = array())
 	{
-		$this->_method = self::METHOD_POST;
+		$this->getRequester()->setMethod(CurlRequester::METHOD_POST);
+		
 		return $this->query($params);
 	}
 
-	public function setHeaders($params)
+	/**
+	 * [query description]
+	 * @param  string $url    [description]
+	 * @param  array  $params [description]
+	 * @return mixed        [description]
+	 * @throws \Exception
+	 */
+	public function query($url, $params = array())
 	{
-		$this->_headers = $params;
-
-	}
-
-	protected function query($params = array())
-	{
-
-		$querystring = http_build_query($params);
-
-		$ch = curl_init();
-
 	
-		switch($this->_method)
+		$result = null;
+		try
 		{
-			case self::METHOD_POST:
-				curl_setopt($ch,CURLOPT_URL,$this->_url);
-				curl_setopt($ch, CURLOPT_POST, true);
-				curl_setopt($ch, CURLOPT_POSTFIELDS,$querystring);
-			break;
-
-			case self::METHOD_GET:
-				curl_setopt($ch,CURLOPT_URL,$this->_url.'?'.$querystring);
-			break;
-
+			$result = $this->getRequester()->query($url, $params);	
 		}
-
-		if($this->_headers)
+		catch (\Exception $e)
 		{
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_headers);						
+			throw $e;		
 		}
 
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-
-			$this->setLastResult(curl_exec($ch));
-			$this->setLastHttpResponse(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-
-		curl_close($ch);
-		if(200 === $this->getLastHttpResponse())
-		{
-			return $this->getLastResult();
-		}
-		else
-		{			
-			throw new \Exception(" {$this->getLastHttpResponse()} error occurred.Message: {$this->getLastResult()}", 1);
-		}
-
+		return $result;		
 	}
+
+	public function getLastHttpResponse()
+	{
+		return $this->getRequester()->getLastHttpResponse();
+	}
+
+	public function getLastResult()
+	{
+		return $this->getRequester()->getLastResult();
+	}
+
+
+
 }

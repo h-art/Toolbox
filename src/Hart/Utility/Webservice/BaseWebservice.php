@@ -2,31 +2,24 @@
 
 namespace Hart\Utility\Webservice;
 
+use Hart\Utility\Requester\BaseRequester;
+
 abstract class BaseWebservice
 {
-	protected	$_lastResult = null,
-				$_lastHttpResponse = null;
+	protected $_requester = null;
 
+	abstract public function query($params);
 
-	abstract protected function query($params);
+	abstract public function getLastHttpResponse();
+	abstract public function getLastResult();
 
-	public function getLastHttpResponse()
+	public function getRequester()
 	{
-		return $this->_lastHttpResponse;
+		return $this->_requester;
 	}
-
-	protected function setLastHttpResponse($response)
+	
+	protected function setRequester($requester)
 	{
-		$this->_lastHttpResponse = $response;
-	}
-
-	public function getLastResult()
-	{
-		return $this->_lastResult;
-	}
-
-	protected function setLastResult($result)
-	{
-		$this->_lastResult = $result;
+		$this->_requester = $requester;
 	}
 }

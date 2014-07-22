@@ -35,7 +35,7 @@ class StringUtilsTest extends \Codeception\TestCase\Test
 
             foreach($test_characters as $char)
             {
-                $this->assertEquals("" , StringUtils::removeEmoji($char) );    
+                $this->assertEquals("" , StringUtils::removeEmoji($char) );
             }
             
         });
