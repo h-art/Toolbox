@@ -12,9 +12,13 @@ class MockedCurlRequester extends CurlRequester
 			'key3'=>array(1,2,3,5,8,13)
 	);
 
+	public static $result_status_test = "123";
+
 	public function query($url,$params = array())
 	{
-		return self::$result_string;
+		$this->setLastResult(self::$result_string);
+		$this->setLastHttpResponse(self::$result_status_test);
+		return $this->getLastResult();
 	}
 
 }
