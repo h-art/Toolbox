@@ -14,6 +14,7 @@ class CurlRequester extends BaseRequester
 	protected 	$_lastResult = null,
 				$_lastHttpResponse = null,
 				$_headers = null,
+				$_userAgent = null,
 				$_method = 'GET';
 
 	public function setMethod($method)
@@ -26,12 +27,14 @@ class CurlRequester extends BaseRequester
 		$this->_method = $method;
 	}
 
-	public function query($url,$params = array())
+	public function setUserAgent($ua)
+	{
+		$this->_userAgent = $ua;
+	}
+
+	protected function configureCurl($ch,$url,$params)
 	{
 		$querystring = http_build_query($params);
-
-		$ch = curl_init();
-
 		switch($this->_method)
 		{
 			case self::METHOD_POST:
@@ -46,12 +49,29 @@ class CurlRequester extends BaseRequester
 
 		}
 
+		if($this->_userAgent)
+		{
+			curl_setopt($ch, CURLOPT_USERAGENT, $this->_userAgent);
+		}
+
 		if($this->_headers)
 		{
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_headers);						
 		}
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		return $ch;
+	}
+
+
+	public function query($url,$params = array())
+	{
+		
+
+		$ch = curl_init();
+
+		$ch = $this->configureCurl($ch,$url,$params);		
 
 		$this->setLastResult(curl_exec($ch));
 		$this->setLastHttpResponse(curl_getinfo($ch, CURLINFO_HTTP_CODE));
@@ -64,7 +84,7 @@ class CurlRequester extends BaseRequester
 		}
 		else
 		{			
-			throw new \Exception(" {$this->getLastHttpResponse()} error occurred.Message: {$this->getLastResult()}", 1);
+			throw new \Exception(" {$this->getLastHttpResponse()} error occurred. Last Result: {$this->getLastResult()}", 1);
 		}
 
 	}

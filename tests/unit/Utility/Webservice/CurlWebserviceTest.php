@@ -29,10 +29,7 @@ class CurlWebserviceTest extends \Codeception\TestCase\Test
  
  	public function test_get_method_returns()
  	{
-
- 		$cr = new MockedCurlRequester();
- 		$x = new CurlWebservice($cr);
- 		
+ 		$x = new CurlWebservice($this->_mocked_curl_requester); 		
  		$this->assertEquals( MockedCurlRequester::$result_string , $x->get('https://www.domain.com') ); 			 		
  	}
 
