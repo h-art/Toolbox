@@ -2,6 +2,7 @@
 
 /**
  * @author Camarda Camillo
+ * @version 0.1
  */
 
 namespace Hart\Facebook\Wrappers;

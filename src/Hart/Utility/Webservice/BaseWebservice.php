@@ -1,8 +1,11 @@
 <?php
 
-namespace Hart\Utility\Webservice;
+/**
+ * @author Camarda Camillo
+ * @version 0.1
+ */
 
-use Hart\Utility\Requester\BaseRequester;
+namespace Hart\Utility\Webservice;
 
 abstract class BaseWebservice
 {

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @author Camarda Camillo
+ * @version 0.1
+ */
+
 namespace Hart\Utility\Requester;
 
 use Hart\Utility\Requester\BaseRequester;
@@ -35,6 +40,7 @@ class CurlRequester extends BaseRequester
 	protected function configureCurl($ch,$url,$params)
 	{
 		$querystring = http_build_query($params);
+
 		switch($this->_method)
 		{
 			case self::METHOD_POST:
@@ -68,7 +74,6 @@ class CurlRequester extends BaseRequester
 	public function query($url,$params = array())
 	{
 		
-
 		$ch = curl_init();
 
 		$ch = $this->configureCurl($ch,$url,$params);		

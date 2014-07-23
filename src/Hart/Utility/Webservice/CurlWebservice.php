@@ -2,6 +2,7 @@
 
 /**
  *  @author Camarda Camillo
+ *  @version 0.1
  * 
  *  USAGE EXAMPLE:
  *  $x = new CurlCaller($url);
@@ -22,18 +23,18 @@ class CurlWebservice extends BaseWebservice
 		$this->setRequester($requester);
 	}
 
-	public function get($params = array())
+	public function get($url,$params = array())
 	{
 		$this->getRequester()->setMethod(CurlRequester::METHOD_GET);
 		
-		return $this->query($params);
+		return $this->query($url,$params);
 	}
 
-	public function post($params = array())
+	public function post($url,$params = array())
 	{
 		$this->getRequester()->setMethod(CurlRequester::METHOD_POST);
 		
-		return $this->query($params);
+		return $this->query($url,$params);
 	}
 
 	/**

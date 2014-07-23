@@ -2,6 +2,7 @@
 namespace Hart\Wrappers\Facebook;
 /**
  * @author Camarda Camillo
+ * @version 0.1
  */
 
 /**
