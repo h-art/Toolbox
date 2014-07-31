@@ -37,9 +37,16 @@ class CurlRequester extends BaseRequester
 		$this->_userAgent = $ua;
 	}
 
+	/**
+	 * 
+	 * @param  [type] $ch     [description]
+	 * @param  [type] $url    [description]
+	 * @param  array $params ALREADY URLENCODED DATA
+	 * @return [type]         [description]
+	 */
 	protected function configureCurl($ch,$url,$params)
 	{
-		$querystring = http_build_query($params);
+		$querystring = urldecode(http_build_query($params));
 
 		switch($this->_method)
 		{
@@ -54,6 +61,8 @@ class CurlRequester extends BaseRequester
 			break;
 
 		}
+
+		//die(var_dump($url.'?'.$querystring));
 
 		if($this->_userAgent)
 		{
