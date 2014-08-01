@@ -13,9 +13,6 @@
 		"mockery/mockery": "0.9.1"
 	},
 	"autoload": {
-		"classmap": [
-			
-		],
 		"psr-4": {
 			"Hart\\": "src/Hart",
 			"Mocks\\": "tests/Mocks"
