@@ -25,9 +25,5 @@
 		"post-update-cmd": [
 			"php vendor/bin/codecept run"
 		]
-	},
-	"config": {
-		"preferred-install": "dist"
-	},
-	"minimum-stability": "stable"
+	}
 }
