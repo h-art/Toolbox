@@ -5,7 +5,7 @@
  * @version 0.1
  */
 
-namespace Hart\Facebook\Wrappers;
+namespace Hart\Wrappers\Facebook;
 /**
  *  REQUIRES: 		"facebook/php-sdk-v4": ">=4.0.8",
  */
@@ -30,8 +30,8 @@ use Facebook\FacebookRedirectLoginHelper;
 
 /**
  *	Common usage:
- * 
- * 
+ *
+ *
  *	 $fb_factory = new FacebookFactory($appid,$appsecret);
  *		$fb_factory->setFacebookRedirectLoginHelperUri($login_uri);
  *		$loginUrl = $fb_factory->getLoginUrl($scopes_array);
@@ -46,15 +46,15 @@ use Facebook\FacebookRedirectLoginHelper;
  *				$response = $fb_factory->request('/me/feed');
  *				$graphFeed = $response->getGraphObject();
  *
- *				$logoutUrl = $fb_factory->getLogoutUrl($redirect_after_logout_uri);	
- *			}			
+ *				$logoutUrl = $fb_factory->getLogoutUrl($redirect_after_logout_uri);
+ *			}
  *			catch(Facebook\FacebookAuthorizationException $e)
  *			{
  *				// $message = "errore blablabal";
- *			}		
+ *			}
  *		}
  *
- * 
+ *
  */
 class FacebookFactory
 {
@@ -67,8 +67,8 @@ class FacebookFactory
 
 	public static function parseSignedRequest($signed_request,$secret)
 	{
-		list($encoded_sig, $payload) = explode('.', $signed_request, 2); 
-			
+		list($encoded_sig, $payload) = explode('.', $signed_request, 2);
+
 
 		// decode the data
 		$sig = self::base64_url_decode($encoded_sig);
@@ -91,12 +91,12 @@ class FacebookFactory
 	}
 
 	public function __construct( $appid,$secret)
-	{				
-		FacebookSession::setDefaultApplication($appid,$secret);		
+	{
+		FacebookSession::setDefaultApplication($appid,$secret);
 	}
 
 	public function getFacebookRedirectLoginHelper()
-	{		
+	{
 		return $this->_facebook_redirect_login_helper;
 	}
 
@@ -119,14 +119,14 @@ class FacebookFactory
 	{
 		/* FOR LARAVEL SESSION USAGE */
 		//$this->_facebook_redirect_login_helper = new LaravelFacebookRedirectLoginHelper($uri);
-		
-		// OR 
+
+		// OR
 		$this->_facebook_redirect_login_helper = new FacebookRedirectLoginHelper($uri);
 	}
 
 	/**
 	 * Tries to set the session from the redirecturl helper
-	 * 
+	 *
 	 * @return bool	true => session correctly set	|	false => session not set
 	 */
 	protected function setFbSessionFromRedirectUrlHelper()
@@ -139,8 +139,9 @@ class FacebookFactory
 				if($this->_facebook_session)
 				{
 					$session_token = $this->_facebook_session->getToken();
-					\Session::put(self::SESSION_PREFIX.'session_token',$session_token);
-				}					
+					$_SESSION[self::SESSION_PREFIX.'session_token'] = $session_token;
+					//\Session::put(self::SESSION_PREFIX.'session_token',$session_token);
+				}
 			} catch(FacebookRequestException $ex) {
 				throw $ex;
 			} catch(\Exception $ex) {
@@ -149,14 +150,14 @@ class FacebookFactory
 			}
 		}
 
-		
+
 
 		return (bool)$this->_facebook_session;
 	}
 
 	/**
 	 * Tries to set the session from the redirecturl helper
-	 * 
+	 *
 	 * @return bool	true => session correctly set	|	false => session not set
 	 */
 	protected function setFbSessionFromCanvasLoginHelper()
@@ -168,13 +169,13 @@ class FacebookFactory
 			{
 				$session_token = $this->_facebook_session->getToken();
 				\Session::put(self::SESSION_PREFIX.'session_token',$session_token);
-			}					
-		} 
-		catch(FacebookRequestException $ex) 
+			}
+		}
+		catch(FacebookRequestException $ex)
 		{
 			throw $ex;
-		} 
-		catch(\Exception $ex) 
+		}
+		catch(\Exception $ex)
 		{
 			// When validation fails or other local issuesù
 			throw $ex;
@@ -189,7 +190,8 @@ class FacebookFactory
 		if(!$this->_facebook_session)
 		{
 			// controllo prima nella sessione utente
-			$token = \Session::get(self::SESSION_PREFIX.'session_token',$token);
+			// $token = \Session::get(self::SESSION_PREFIX.'session_token',$token);
+			$token = isset($_SESSION[self::SESSION_PREFIX.'session_token'])? $_SESSION[self::SESSION_PREFIX.'session_token'] : null ;
 			if($token)
 			{
 				$this->_facebook_session =	new FacebookSession($token);
@@ -198,7 +200,7 @@ class FacebookFactory
 			{
 				if(!$this->_facebook_redirect_login_helper && !$this->_facebook_canvas_login_helper )
 				{
-					throw new \Exception("FacebookRedirectLoginHelper AND CanvasLoginHelper not init. ", 1);					
+					throw new \Exception("FacebookRedirectLoginHelper AND CanvasLoginHelper not init. ", 1);
 				}
 
 				// non c'e' in sessione utente, vedo se ce l'ho dal redirect login helper
@@ -207,9 +209,9 @@ class FacebookFactory
 				// se non l'ho trovata dal redirect helper ma ho il canvas helper provo con il canvas helper
 				if(!$session_set_from_redirect_helper && $this->_facebook_canvas_login_helper)
 				{
-					$this->setFbSessionFromCanvasLoginHelper();								
+					$this->setFbSessionFromCanvasLoginHelper();
 				}
-			}			
+			}
 		}
 
 		return $this->_facebook_session;
@@ -228,7 +230,7 @@ class FacebookFactory
 	 * @param	[type] $version		[description]
 	 * @param	[type] $etag			 [description]
 	 * @return Facebook\FacebookResponse [description]
-	 * 
+	 *
 	 * @throws Facebook\FacebookAuthorizationException exception when the user hasn't given the app the permission it needs
 	 * @throws \Exception description
 	 */
@@ -236,7 +238,7 @@ class FacebookFactory
 	{
 		if(!$this->getFacebookSession())
 		{
-			throw new \Exception("No facebook session");			
+			throw new \Exception("No facebook session");
 		}
 
 		$request = new FacebookRequest($this->getFacebookSession(), $method, $path, $parameters = null, $version = null, $etag = null);
@@ -245,7 +247,7 @@ class FacebookFactory
 
 		try
 		{
-			$response = $request->execute();		
+			$response = $request->execute();
 		}
 		catch(FacebookAuthorizationException $ex)
 		{
@@ -255,10 +257,10 @@ class FacebookFactory
 		catch(\Exception $ex)
 		{
 			//$this->signout();
-			throw	$ex;		
+			throw	$ex;
 		}
 
-		
+
 		return $response;
 
 		//$graphObject = $response->getGraphObject();
@@ -275,7 +277,7 @@ class FacebookFactory
 	}
 
 	public function signout()
-	{		
+	{
 		$this->_facebook_redirect_login_helper = null;
 		$this->_facebook_session = null;
 		\Session::forget(self::SESSION_PREFIX.'session_token');
