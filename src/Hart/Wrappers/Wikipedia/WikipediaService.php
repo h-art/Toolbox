@@ -2,7 +2,8 @@
 
 /**
  * @author Camarda Camillo
- * @version 0.1
+ * @version 0.2
+ * @edited by Zanardo Alex
  */
 
 namespace Hart\Wrappers\Wikipedia;
@@ -15,28 +16,24 @@ use Hart\Utility\Webservice\CurlWebservice;
  */
 class WikipediaService extends CurlWebservice
 {
-
-    //http://en.wikipedia.org/w/api.php?format=json&action=query&titles=Main%20Page&prop=revisions&rvprop=content
-
-    ///w/api.php?action=parse&format=json&page=the%20Matrix&prop=sections
-    //
     const DEFAULT_USER_AGENT = "Hart WikipediaService v. 0.1 - http://http://www.h-art.com/";
 
     protected $_base_url;
     protected $_language = 'it';
     protected $_params = array(
-                'format'    =>'json',
-                'action'    =>'query',
-                'prop'        =>'revisions',
-                'rvprop'    =>'content',
-                'redirects' =>'true'
-            );
+        "format" => "json",
+        "action" => "query",
+        "prop" => "revisions",
+        "rvprop" => "content",
+        "redirects" => "true",
+        "generator" => "search",
+        "continue" => "",
+    );
 
     protected static $_instance = null;
 
     public static function getInstance($wikiApiUrl = "http://it.wikipedia.org/w/api.php")
     {
-
         if (!$wikiApiUrl) {
             throw new Exception("Missing api endpoint", 1);
         }
@@ -48,7 +45,7 @@ class WikipediaService extends CurlWebservice
         }
 
         return self::$_instance;
-    }
+    }//fine function
 
     /**
      * Returns the content of a wikipedia page
@@ -57,13 +54,13 @@ class WikipediaService extends CurlWebservice
      * @param  integer $section [description] (only if we are searching a single page)
      * @return [type]  [description]
      */
-    public function search($searchs, $section = false)
+    public function search($searchs, $section = false, $pageId = null)
     {
-
         $searchs = $this->composeTitles($searchs);
         $search_counts = is_array($searchs) ? count($searchs) : 1;
 
-        $mergedParams = array_merge($this->_params, array('titles' => $searchs));
+        $mergedParams = array_merge($this->_params, array('gsrsearch' => $searchs));
+
         if (($section !== false) && (1 === $search_counts)) {
             $mergedParams['rvsection'] = $section;
         }
@@ -71,47 +68,59 @@ class WikipediaService extends CurlWebservice
         try {
             return json_decode(parent::get($this->getBaseUrl(), $mergedParams), 1);
         } catch (\Exception $e) {
-            return json_encode(array("error"=>$e->getMessage()));
+            return json_encode(array("error" => $e->getMessage()));
         }
-    }
+    }//fine function
 
     //http://en.wikipedia.org/w/api.php?action=parse&page=Joe%20Satriani&prop=text&section=2&format=json
-    public function getSectionHtml($page, $section)
+    public function getSectionHtml($page, $section, $pageId = null)
     {
         $mergedParams = array_merge($this->_params, array(
             'action' => 'parse',
-            'prop'  =>  'text',
+            'prop' => 'text',
             'section' => $section,
-            'page'      => $this->composeTitles($page)
-            ));
+        ));
 
-        unset($mergedParams['rvprop']);
+        unset($mergedParams["redirects"]);
+        unset($mergedParams["continue"]);
+
+        if ($pageId !== null) {
+            $mergedParams["pageid"] = $pageId;
+        } else {
+            $mergedParams["page"] = $this->composeTitles($search);
+            $mergedParams["redirects"] = "true";
+        }
+
+        unset($mergedParams["rvprop"]);
+        unset($mergedParams["generator"]);
 
         try {
             return json_decode(parent::get($this->getBaseUrl(), $mergedParams), 1);
         } catch (\Exception $e) {
-            return json_encode(array("error"=>$e->getMessage()));
+            return json_encode(array("error" => $e->getMessage()));
         }
-
-    }
+    }//fine function
 
     /**
      * return the sections of a certain page
      * @param  string $search Name of the page
      * @return JSON   string the result
      */
-    public function getSections($search)
+    public function getSections($search, $pageId = null)
     {
         $mergedParams = array(
-            'format'    =>'json',
-            'action'    => 'parse',
-            'prop'        => 'sections',
-            'page'        => $this->composeTitles($search),
-            'redirects'    => 'true',
+            "format" => "json",
+            "action" => "parse",
+            "prop" => "sections",
         );
 
-        //die(Var_dump($search, $this->composeTitles($search),$this->getBaseUrl(),$mergedParams));
-//http://it.wikipedia.org/w/api.php?format=json&action=parse&prop=sections&page=The%20Matrix&redirects=true
+        if ($pageId !== null) {
+            $mergedParams["pageid"] = $pageId;
+        } else {
+            $mergedParams["page"] = $this->composeTitles($search);
+            $mergedParams["redirects"] = "true";
+        }
+
         try {
             $result = json_decode(parent::get($this->getBaseUrl(), $mergedParams), 1);
 
@@ -121,10 +130,9 @@ class WikipediaService extends CurlWebservice
 
             return $result;
         } catch (\Exception $e) {
-            return json_encode(array("error"=>$e->getMessage()));
+            return json_encode(array("error" => $e->getMessage()));
         }
-
-    }
+    }//fine function
 
     /**
      * Search images for a page
@@ -133,19 +141,19 @@ class WikipediaService extends CurlWebservice
      */
     public function searchImages($searchs)
     {
-
         $searchs = $this->composeTitles($searchs);
 
         $mergedParams = array_merge($this->_params, array(
-            'titles'     => $searchs,
-            'prop'        => 'images'
-            ));
+            'titles' => $searchs,
+            'prop' => 'images',
+        ));
+
         try {
             return json_decode(parent::get($this->getBaseUrl(), $mergedParams), 1);
         } catch (\Exception $e) {
-            return json_encode(array("error"=>$e->getMessage()));
+            return json_encode(array("error" => $e->getMessage()));
         }
-    }
+    }//fine function
 
     /**
      * Given images unique wiki-urls ( ex:  )
@@ -159,19 +167,19 @@ class WikipediaService extends CurlWebservice
         $searchs = $this->composeTitles($searchs, false);
 
         $mergedParams = array_merge($this->_params, array(
-            'titles'     => $searchs,
-            'iiprop'    => 'url',
-            'prop'        => 'imageinfo',
-
+            'titles' => $searchs,
+            'iiprop' => 'url',
+            'prop' => 'imageinfo',
         ));
+
         unset($mergedParams['rvprop']);
 
         try {
             return json_decode(parent::get($this->getBaseUrl(), $mergedParams), 1);
         } catch (\Exception $e) {
-            return json_encode(array("error"=>$e->getMessage()));
+            return json_encode(array("error" => $e->getMessage()));
         }
-    }
+    }//fine function
 
     /**
      * Utility function to convert string| array of page names to pipe-separated string
@@ -186,45 +194,46 @@ class WikipediaService extends CurlWebservice
         }
 
         $tmp = array();
+
         foreach ($titles as $s) {
             $s = ucwords($s);
+
             if ($urlencode) {
                 $tmp[] = urlencode($s);
             } else {
                 $tmp[] = $s;
             }
-
-        }
+        }//fine foreach
 
         $titles = implode('|', $tmp);
 
         return $titles;
-    }
+    }//fine function
 
     public function get($url, $params = array())
     {
         throw new Exception("Use the search() method.", 1);
-    }
+    }//fine function
 
     public function post($url, $params = array())
     {
         throw new Exception("Only GET method allowed", 1);
-    }
+    }//fine function
 
     public function setLanguage($language)
     {
         $this->_language = $language;
-    }
+    }//fine function
 
     public function getLanguage()
     {
         return $this->_language;
-    }
+    }//fine function
 
     public function setUserAgent($ua)
     {
         $this->getRequester()->setUserAgent($ua);
-    }
+    }//fine function
 
     protected static function getCurlRequester()
     {
@@ -232,15 +241,15 @@ class WikipediaService extends CurlWebservice
         $cr->setUserAgent(self::DEFAULT_USER_AGENT);
 
         return $cr;
-    }
+    }//fine function
 
     public function setBaseUrl($url)
     {
         $this->_base_url = $url;
-    }
+    }//fine function
 
     public function getBaseUrl()
     {
         return $this->_base_url;
-    }
+    }//fine function
 }
