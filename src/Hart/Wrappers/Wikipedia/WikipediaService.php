@@ -16,7 +16,7 @@ use Hart\Utility\Webservice\CurlWebservice;
  */
 class WikipediaService extends CurlWebservice
 {
-    const DEFAULT_USER_AGENT = "Hart WikipediaService v. 0.1 - http://http://www.h-art.com/";
+    const DEFAULT_USER_AGENT = "Hart WikipediaService v. 0.1 - http://www.h-art.com/";
 
     protected $_base_url;
     protected $_language = 'it';
@@ -32,7 +32,7 @@ class WikipediaService extends CurlWebservice
 
     protected static $_instance = null;
 
-    public static function getInstance($wikiApiUrl = "http://it.wikipedia.org/w/api.php")
+    public static function getInstance($wikiApiUrl = "https://it.wikipedia.org/w/api.php")
     {
         if (!$wikiApiUrl) {
             throw new Exception("Missing api endpoint", 1);
